@@ -1,0 +1,157 @@
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script>
+<script src="js/jquery.csv.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+<script src="js/csv_to_html_table.js"></script>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ignition Forensic Artifact Carving Tool (IFACT)</title>
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+    <style>
+        body {
+          font-family: "Lato", sans-serif;
+          transition: background-color .5s;
+        }
+        
+        .sidenav {
+          height: 100%;
+          width: 0;
+          position: fixed;
+          z-index: 1;
+          top: 0;
+          left: 0;
+          background-color: #111;
+          overflow-x: hidden;
+          transition: 0.5s;
+          padding-top: 60px;
+        }
+        
+        .sidenav a {
+          padding: 8px 8px 8px 32px;
+          text-decoration: none;
+          font-size: 25px;
+          color: #818181;
+          display: block;
+          transition: 0.3s;
+        }
+        
+        .sidenav a:hover {
+          color: #f1f1f1;
+        }
+        
+        .sidenav .closebtn {
+          position: absolute;
+          top: 0;
+          right: 25px;
+          font-size: 36px;
+          margin-left: 50px;
+        }
+        
+        #main {
+          transition: margin-left .5s;
+          padding: 16px;
+        }
+        #buttons {
+          transition: margin-left .5s;
+          padding: 16px;
+        }
+
+        .button-container {
+          display: flex;
+        }
+
+        .item {
+          display: flex;
+          flex-direction: column;
+          padding-right: 50px;
+        }
+        
+        @media screen and (max-height: 450px) {
+          .sidenav {padding-top: 15px;}
+          .sidenav a {font-size: 18px;}
+        }
+        </style>  
+
+</head>
+        <body>
+        
+        <div id="mySidenav" class="sidenav">
+          <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+          <a href="/index.html">Artifact Data</a>  <!-- Artifact data table -->
+          <a href="/ram_artifacts.html">RAM Artifacts</a>
+          <a href="/disk_artifacts.html">Disk Artifacts</a>
+          <a href="/web_artifacts.html">Network Artifacts</a>
+        </div>
+        
+        <div id="main">
+          <h2>Network Artifacts</h2>
+          <span style="font-size:20px;cursor:pointer" onclick="openNav()">&#9776; Views</span>
+        </div>
+
+        <div id="table-container"></div>
+        
+        <script>
+        function openNav() {
+          document.getElementById("mySidenav").style.width = "250px";
+          document.getElementById("main").style.marginLeft = "250px";
+          document.body.style.backgroundColor = "rgba(0,0,0,0.4)";
+        }
+        
+        function closeNav() {
+          document.getElementById("mySidenav").style.width = "0";
+          document.getElementById("main").style.marginLeft= "0";
+          document.body.style.backgroundColor = "white";
+        }
+        </script>
+
+<!-- https://github.com/derekeder/csv-to-html-table -->
+        <script>
+            function format_link(link) {
+                if (link)
+                    return "<a href='" + link + "' target='_blank'>" + link + "</a>";
+                else return "";
+            }
+
+            csv_paths = sessionStorage.getItem("web_artifacts");
+            console.log(csv_paths)
+
+            CsvToHtmlTable.init({
+                csv_path: csv_paths,
+                element: "table-container",
+                allow_download: true,
+                csv_options: {
+                    separator: ",",
+                    delimiter: '"'
+                },
+                datatables_options: {
+                    paging: false
+                },
+                custom_formatting: [
+                    [4, format_link]
+                ]
+            });
+        </script>
+
+
+        <script type='text/javascript' src='/eel.js'></script>
+
+
+
+        <script>
+            window.onload = sessionStorage.getItem("web_artifacts");
+        </script>
+
+    </body>
+
+    
+    </html> 
+        

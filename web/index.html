@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ignition Forensic Artifact Carving Tool (IFACT)</title>
+    <style>
+        body {
+          font-family: "Lato", sans-serif;
+          transition: background-color .5s;
+        }
+        
+        .sidenav {
+          height: 100%;
+          width: 0;
+          position: fixed;
+          z-index: 1;
+          top: 0;
+          left: 0;
+          background-color: #111;
+          overflow-x: hidden;
+          transition: 0.5s;
+          padding-top: 60px;
+        }
+        
+        .sidenav a {
+          padding: 8px 8px 8px 32px;
+          text-decoration: none;
+          font-size: 25px;
+          color: #818181;
+          display: block;
+          transition: 0.3s;
+        }
+        
+        .sidenav a:hover {
+          color: #f1f1f1;
+        }
+        
+        .sidenav .closebtn {
+          position: absolute;
+          top: 0;
+          right: 25px;
+          font-size: 36px;
+          margin-left: 50px;
+        }
+        
+        #main {
+          transition: margin-left .5s;
+          padding: 16px;
+        }
+        #buttons {
+          transition: margin-left .5s;
+          padding: 16px;
+        }
+
+        .button-container {
+          display: flex;
+        }
+
+        .data-analysis-container {
+          display: flex;
+        }
+
+        .item {
+          display: flex;
+          flex-direction: column;
+          padding-right: 50px;
+        }
+
+        .row {
+          display: flex;
+          margin-left:-5px;
+          margin-right:-5px;
+        }
+
+        .column {
+          flex: 33%;
+          padding: 5px;
+        }
+        .data-item{
+          margin-right: 20px;
+        }
+
+        table {
+          border-collapse: collapse;
+          border-spacing: 0;
+          width: 100%;
+          border: 1px solid #ddd;
+        }
+
+        tr:nth-child(even) {
+          background-color: #D6EEEE;
+        }
+        
+        tr:hover {background-color: #d8bdf1;}
+        
+        @media screen and (max-height: 450px) {
+          .sidenav {padding-top: 15px;}
+          .sidenav a {font-size: 18px;}
+        }
+        </style>
+        </head>
+        <body>
+        
+        <div id="mySidenav" class="sidenav">
+          <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+          <a href="/index.html">Artifact Data</a>  <!-- Artifact data table -->
+          <a href="/ram_artifacts.html">RAM Artifacts</a>
+          <a href="/disk_artifacts.html">Disk Artifacts</a>
+          <a href="/web_artifacts.html">Network Artifacts</a>
+        </div>
+        
+        <div id="main">
+          <h2>The Ignition Forensic Artifact Carving Tool</h2>
+          <p>Please provide the forensic files and images. Select "Extract Artifacts" to perform analysis.</p>
+          <span style="font-size:20px;cursor:pointer" onclick="openNav()">&#9776; Views</span>
+        </div>
+
+        <div class="button-container" id="buttons">
+            
+            <div class="item">
+                <button type="button" onclick="getPathToFile()">Select File</button>
+            </div>
+            <div class="item">
+                <button type="button" onclick="extract()">Extract Artifacts</button>
+            </div>
+            <div id='file-name'>---</div>
+
+        </div>
+
+        <div class="data-analysis-container" id="disk">
+
+          <div class="data-item">
+            <h3>Disk System Data</h3>
+            <p id="tags-disk-container"></p>
+          </div>
+
+          <div class="data-item">
+            <h3>RAM Tag Data</h3>
+            <p id="tags-mem-container"></p>
+          </div>
+
+          <div class="data-item">
+            <h3>RAM Device Data</h3>
+            <p id="devices-mem-container"></p>
+          </div>
+          
+        </div>
+
+        
+        <script>
+        function openNav() {
+          document.getElementById("mySidenav").style.width = "250px";
+          document.getElementById("main").style.marginLeft = "250px";
+          document.body.style.backgroundColor = "rgba(0,0,0,0.4)";
+        }
+        
+        function closeNav() {
+          document.getElementById("mySidenav").style.width = "0";
+          document.getElementById("main").style.marginLeft= "0";
+          document.body.style.backgroundColor = "white";
+        }
+        </script>
+
+        <script type='text/javascript' src='/eel.js'></script>
+
+        <script type='text/javascript'>
+        async function getPathToFile() {
+            let file_div = document.getElementById('file-name');
+            let filename = await eel.getPath()();
+            file_div.innerHTML = filename.join(", ");
+        };
+        </script>
+
+        <script type="text/javascript">
+            async function extract() {
+                let artifacts = await eel.extractArtifacts()();
+                sessionStorage.setItem("web_artifacts", artifacts[0]);
+                sessionStorage.setItem("mem_tag_artifacts", artifacts[1][0]);
+                sessionStorage.setItem("mem_device_artifacts", artifacts[1][1]);
+                sessionStorage.setItem("disk_artifacts", artifacts[2]);
+                console.log(artifacts);
+                return;
+            }
+        </script>
+
+        <script>
+          const path = sessionStorage.getItem("disk_artifacts");
+          fetch(path).
+              then(response => response.json()).
+              then(json => {
+              tagData = JSON.stringify(json);
+              const jsonTags = JSON.parse(tagData);
+              console.log(jsonTags);
+                              
+              let text = "<table border='1'>"
+              text += "<th>Tag Name</th>"
+              text += "<th>Tag Data</th>"
+              for (let x in jsonTags) {
+                  text += "<tr><td>" + jsonTags[x].name + "</td><td>" + 
+                    "valueSource: " + jsonTags[x].data.valueSource + "<br>" +
+                    "opcItemPath: " + jsonTags[x].data.opcItemPath + "<br>" +
+                    "dataType: " + jsonTags[x].data.dataType + "<br>" +
+                    "historyProvider: " + jsonTags[x].data.historyProvider + "<br>" +
+                    "historyEnabled: " + jsonTags[x].data.historyEnabled + "<br>" +
+                    "tagType: " + jsonTags[x].data.tagType + "<br>" +
+                    "opcServer: " + jsonTags[x].data.opcServer + "<br>" +
+                    + "</td></tr>";
+                
+              }
+              text += "</table>"    
+              document.getElementById("tags-disk-container").innerHTML = text;
+              });
+            
+        </script>
+
+                
+        <script>
+          const path1 = sessionStorage.getItem("mem_tag_artifacts");
+          fetch(path1).
+              then(response => response.json()).
+              then(json => {
+              tagData = JSON.stringify(json);
+              const jsonTags = JSON.parse(tagData);
+              console.log(jsonTags);
+                              
+              let text = "<table border='1'>"
+              text += "<th>Tag Path</th>"
+              for (let x in jsonTags) {
+                  text += "<tr><td>" + jsonTags[x].path + "</td></tr>";
+                
+              }
+              text += "</table>"    
+              document.getElementById("tags-mem-container").innerHTML = text;
+              });
+              // then(json => sessionStorage.setItem("disk_tags", json));
+            
+        </script>
+
+        <script>
+            const path2 = sessionStorage.getItem("mem_device_artifacts");
+            fetch(path2).
+                then(response => response.json()).
+                then(json => {
+                deviceData = JSON.stringify(json);
+                const jsonDevices = JSON.parse(deviceData);
+                console.log(jsonDevices);
+                                
+                let text = "<table border='1'>"
+                text += "<th>Device Communication Server</th>"
+                for (let x in jsonDevices) {
+                    text += "<tr><td>" + jsonDevices[x].name + "</td></tr>";
+                  
+                }
+                text += "</table>"    
+                document.getElementById("devices-mem-container").innerHTML = text;
+                });
+                // then(json => sessionStorage.setItem("disk_tags", json));
+              
+          </script>
+           
+        </body>
+        </html> 
+        
