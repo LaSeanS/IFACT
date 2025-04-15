@@ -56,14 +56,12 @@ def extractArtifacts():
     artifacts = []
     if pcap_paths:
         csvs = analyzePCAP(pcap_paths)
-        # artifacts.append(csvs[0][6:])
-        artifacts.append("hello")
+        artifacts.append(csvs[0][6:])
 
 
     if ram_paths:
         memData = analyzeRAM(ram_paths)
         artifacts.append(memData)
-        artifacts.append("hello")
 
 
     if disk_paths:

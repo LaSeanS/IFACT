@@ -1,4 +1,0 @@
-DEVICESETTINGS ID,NAME,TYPE,DESCRIPTION,ENABLED
-1,Micro850 Modbus TCP Server,ModbusTcp,Facilitates communication between the Ignition gateway and the PLC device,1
-2,ClickPLC Modbus TCP Server,ModbusTcp,Facilitates communication between the Ignition gateway and the PLC device,1
-3,Siemens OPC UA Server,S71200,Facilitates communication between the Ignition gateway and the PLC device,1
