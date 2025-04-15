@@ -1,4 +1,4 @@
-import eel, os, wx, pytsk3, pyshark, csv, json, sys,  pathlib, sqlite3, re
+import eel, os, wx, pytsk3, pyshark, csv, json, sys,  pathlib, sqlite3, re, logging, hashlib
 from io import StringIO
 
 eel.init('web')
@@ -56,19 +56,19 @@ def extractArtifacts():
     artifacts = []
     if pcap_paths:
         csvs = analyzePCAP(pcap_paths)
-        artifacts.append(csvs[0][6:])
+        # artifacts.append(csvs[0][6:])
+        artifacts.append("hello")
 
-    # artifacts.append("hello")
 
     if ram_paths:
         memData = analyzeRAM(ram_paths)
         artifacts.append(memData)
+        artifacts.append("hello")
 
 
     if disk_paths:
-        # ignition_dir = carveDisk(disk_paths)
-        # analyzeDisk(ignition_dir)
-        diskTags = analyzeDisk("./web/data/Ignition_Disk_Files")
+        ignition_dir = carveDisk(disk_paths)
+        diskTags = analyzeDisk(ignition_dir)
         artifacts.append(diskTags[6:])
 
     paths.clear()
@@ -77,16 +77,14 @@ def extractArtifacts():
 
 
 def carveDisk(disk_paths):
+    logging.basicConfig(filename='disk_carving.log', level=logging.INFO)
 
     for disk_path in disk_paths:
 
-        # Define a directory to save carved files
         output_dir = './web/data/Ignition_Disk_Files'
 
-        # Define the target directory to carve (absolute path in the file system)
         target_directory = 'Program Files/Inductive Automation/Ignition'  # Adjust this to your specific directory path within the image
 
-        # Create the output directory if it doesn't exist
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
@@ -172,7 +170,9 @@ def carveDisk(disk_paths):
                         file_object = file_entry.read_random(0, file_size)
                         f.write(file_object)
 
-                    print(f"File carved: {output_file_path} (Size: {file_size} bytes)")
+                    hex_sig = hex_file(output_file_path)
+
+                    logging.info(f"File carved: {output_file_path} (Size: {file_size} bytes; Hex: {hex_sig})")
                 else:
                     print(f"Skipping empty file: {file_path}")
             except Exception as e:
@@ -186,6 +186,16 @@ def carveDisk(disk_paths):
             print(f"Error: {e}")
 
     return output_dir
+
+def hex_file(file_path):
+    sha256 = hashlib.sha256()
+    with open(file_path, 'rb') as f:
+        while True:
+            data = f.read(65536)
+            if not data:
+                break
+            sha256.update(data)
+    return sha256.hexdigest()
 
 def analyzeDisk(path):
     dir_path = str(pathlib.Path().resolve()) + "\\" + path + "\Program Files\Inductive Automation\Ignition"
