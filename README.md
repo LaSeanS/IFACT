@@ -4,10 +4,10 @@ The Ignition Forensic Artifact Carving Tool (IFACT)  is a specialized forensic a
 
 Key features include:
 
-    Network Artifact Parsing: Extracts device communication server configurations and tag event data to analyze SCADA network activity.
+- Network Artifact Parsing: Extracts device communication server configurations and tag event data to analyze SCADA network activity.
 
-    Disk Artifact Analysis: Recovers project files, gateway configurations, logs, PLC and tag data stored on disk. 
+- Disk Artifact Analysis: Recovers project files, gateway configurations, logs, PLC and tag data stored on disk. 
 
-    Memory Artifact Parsing: Parses memory dumps from SCADA hosts to uncover tags being processed during runtime and PLC devices in active use.
+- Memory Artifact Parsing: Parses memory dumps from SCADA hosts to uncover tags being processed during runtime and PLC devices in active use.
 
 IFACT supports structured output formats (e.g., JSON, CSV) for integration into analysis pipelines and hosts an HTML webserver for easy data viewing in the browser.
