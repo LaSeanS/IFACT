@@ -1,4 +1,4 @@
-import eel, os, wx, pytsk3, pyshark, csv, json, sys, pyodbc, pathlib, sqlite3, re
+import eel, os, wx, pytsk3, pyshark, csv, json, sys,  pathlib, sqlite3, re
 from io import StringIO
 
 eel.init('web')
@@ -75,44 +75,7 @@ def extractArtifacts():
 
     return artifacts
 
-# """
-# Connects to a SQL database using pyodbc
-# """
-def querySQL():
-#     SERVER = ''
-#     DATABASE = r''
-#     USERNAME = r''
-#     PASSWORD = r''
 
-#     connectionString = f'DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={SERVER};DATABASE={DATABASE};UID={USERNAME};PWD={PASSWORD};TrustServerCertificate=yes'
-#     conn = pyodbc.connect(connectionString)
-
-#     SQL_QUERY = """
-#     SELECT 
-#     TOP 10 c.tagid, 
-#     c.CompanyName, 
-#     c.floatvalue,
-#     c.stringvalue,
-#     c.datevalue,
-#     c.dataintegrity,
-#     c.t_stamp
-#     FROM 
-#     PLC_Testbed.dbo.sqlt_data_1_2024_09
-#     """
-
-#     cursor = conn.cursor()
-#     cursor.execute(SQL_QUERY)
-
-#     records = cursor.fetchall()
-#     print(r)
-#     for r in records:
-#         print(f"{r.tagid}\t{r.intvalue}")
-
-#     conn.close()
-
-    return
-
-    
 def carveDisk(disk_paths):
 
     for disk_path in disk_paths:
@@ -151,7 +114,6 @@ def carveDisk(disk_paths):
             # Open the file system at the partition's start point
             file_system = pytsk3.FS_Info(img, offset=partition_offset)
             
-            # Now you can proceed with file carving as shown in previous examples
             print("File system opened for partition", selected_partition.addr)
         else:
             print("Partition not found.")
@@ -177,7 +139,7 @@ def carveDisk(disk_paths):
             
             return current_directory
 
-        # Define a function to carve files from the specific directory
+        # Carve files from the Ignition directory
         def carve_files_from_directory(directory, fs, dir_path=''):
             for file_entry in directory:
                 # Ignore '.' and '..' directories
@@ -196,7 +158,7 @@ def carveDisk(disk_paths):
                     print(f"Carving file: {file_path}")
                     save_carved_file(file_entry, file_path)
 
-        # Function to save carved files
+        # Save files
         def save_carved_file(file_entry, file_path):
             try:
                 file_size = file_entry.info.meta.size
@@ -224,8 +186,6 @@ def carveDisk(disk_paths):
             print(f"Error: {e}")
 
     return output_dir
-
-# Program Files/Inductive Automation/Ignition/data/projects/.resources
 
 def analyzeDisk(path):
     dir_path = str(pathlib.Path().resolve()) + "\\" + path + "\Program Files\Inductive Automation\Ignition"
@@ -341,8 +301,6 @@ def analyzeDisk(path):
     with open(json_output_file, "w") as outfile:
         outfile.write(tagJson)
 
-
-    # Be sure to close the connection
     conn.close()
 
     return json_output_file
@@ -411,8 +369,7 @@ def parseTagData(infile):
             # print(line)
             tagData = re.search(r'"tagPath":\s".+\.value', line)
             deviceData = re.search(r'Devices\/(.*?)(\/Enabled)', line)
-            
-
+        
             if tagData is not None:
                 print(tagData)
                 tagNum += 1
@@ -425,7 +382,6 @@ def parseTagData(infile):
                     deviceData = deviceData.replace("/Enabled", "")
                     deviceNum += 1
                     devices[deviceData] = deviceNum
-
 
     print(tagPaths)
     print(devices)
@@ -510,7 +466,6 @@ def getMdbsFuncCode(data):
         func_code = "Read Holding Registers"
     return func_code
 
-
 def analyzePCAP(pcap_paths):
     global pcap_data
     pcap_data = {}
@@ -543,7 +498,6 @@ def analyzePCAP(pcap_paths):
         # Open the PCAP file with the specified filter using pyshark
         packets = pyshark.FileCapture(pcap_file, display_filter=packet_filter, output_file= "./web/data/" + pcap_file.split('\\')[-1] + "_filtered.pcap", keep_packets=False)
         # packets.load_packets()
-
 
         # Open a CSV file to write the filtered packet data
         with open(csv_output_file, mode='w', newline='') as f:
@@ -608,7 +562,6 @@ def analyzePCAP(pcap_paths):
                         'Timestamp': packet.sniff_timestamp
                     }
 
-
                     if "HOST" in packet_info['Source']:
                         requests += 1
                     elif "PLC" in packet_info['Source']:
@@ -617,8 +570,6 @@ def analyzePCAP(pcap_paths):
                     # Write the packet information to the CSV file
                     csv_writer.writerow(packet_info)
 
-                    
-                
                 # except AttributeError:
                 #     # In case a packet does not have the expected attributes, skip it
                 #     continue
@@ -635,25 +586,6 @@ def analyzePCAP(pcap_paths):
         csv_paths.append(csv_output_file)
 
     return csv_paths
-
-# @eel.expose
-# def main():
-
-#     f = open("D:\\myfiles\welcome.txt", "r")
-#     print(f.read(500)) 
-
-
-#     with open("myfile.txt", "w") as file1:
-#         # Writing data to a file
-#         file1.write("Hello \n")
-#         file1.writelines(L)
-#         file1.close()  # to change file access modes
-
-#     with open("myfile.txt", "r+") as file1:
-#         # Reading from a file
-#         print(file1.read())
-
-
 
 if __name__=="__main__":
     eel.start("index.html")
